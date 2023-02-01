@@ -1,9 +1,16 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import axios from '../api/axios'
+import useAuth from '../hooks/useAuth'
 
 function Login() {
+  const { auth, setAuth } = useAuth()
+  const navigate = useNavigate()
+  // local state
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [isError, setIsError] = useState('')
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -11,16 +18,57 @@ function Login() {
       email,
       password
     }
+
+    setIsLoading(true)
     await axios.post('/user/login', JSON.stringify(body), {
       headers: { 'Content-Type': 'application/json'}
     })
-    .then(response => console.log(response.data))
-    .catch(err => console.warn(err.response.data))
+    .then(response => {
+      if(response.data.status) {
+        setAuth(response.data)
+        setTimeout(()=> {
+          setIsLoading(false)
+          navigate('/')        
+        }, 1000)
+      }
+    })
+    .catch(err => {
+      setIsLoading(false)
+      setIsError(err.response.data)
+      console.warn(err.response.data)
+      setTimeout(() => {
+        setIsError('')
+      }, 3000)
+    })
   }
+  
+  if(isLoading) {
+    return (
+      <div className="flex h-screen w-full justify-center items-center">
+        <p className="text-3xl">
+          Loading...
+        </p>
+      </div>
+    )
+  }
+
+  if(isError) {
+    return (
+      <div className="flex h-screen w-full justify-center items-center">
+        <p className="text-3xl text-red-600">{isError?.err || isError?.Error}</p>
+      </div>
+    )
+  }
+
   return (
     <>
       <div className="h-screen flex items-center justify-center">
         <form className="w-full h-auto max-w-sm m-auto" onSubmit={handleLogin}>
+          <div className="md:w-2/3">
+            <label className="block font-bold md:text-right mb-2 md:mb-6 pr-4 text-3xl" htmlFor="inline-full-name">
+              Login
+            </label>
+          </div>
           <div className="md:flex md:items-center mb-6">
             <div className="md:w-1/3">
               <label className="block text-gray-500 font-bold md:text-right mb-1 md:mb-0 pr-4" htmlFor="inline-full-name">
