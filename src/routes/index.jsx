@@ -1,12 +1,19 @@
 import Home from '../views/Home';
 import Login from '../views/Login';
 import Signup from '../views/Signup';
-
-const routes = [
+  
+export const routes = [
     {
         path: '/',
         element: <Home />
     },
+    {
+        path: '/*',
+        element: <Home />
+    }
+]
+
+export const publicRoutes = [
     {
         path: '/login',
         element: <Login />
@@ -15,10 +22,6 @@ const routes = [
         path: '/signup',
         element: <Signup />
     },
-    {
-        path: '/*',
-        element: <Home />,
-    }
 ]
 
-export default routes
+export default [...routes, ...publicRoutes]
