@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from '../api/axios'
 import useAuth from '../hooks/useAuth'
@@ -27,8 +27,7 @@ function Login() {
       if(response.data.status) {
         setAuth(response.data)
         setTimeout(()=> {
-          setIsLoading(false)
-          navigate('/')        
+          setIsLoading(false)     
         }, 1000)
       }
     })
@@ -42,26 +41,27 @@ function Login() {
     })
   }
   
-  if(isLoading) {
-    return (
-      <div className="flex h-screen w-full justify-center items-center">
-        <p className="text-3xl">
-          Loading...
-        </p>
-      </div>
-    )
-  }
-
-  if(isError) {
-    return (
-      <div className="flex h-screen w-full justify-center items-center">
-        <p className="text-3xl text-red-600">{isError?.err || isError?.Error}</p>
-      </div>
-    )
-  }
+  useEffect(() => {
+    if(auth && auth.status) {
+      navigate('/')
+    }
+  }, [auth])
+  
 
   return (
     <>
+      {isError && 
+        <div className="flex sticky top-20 w-full justify-center items-center">
+          <p className="text-3xl text-red-600">{isError?.err || isError?.Error}</p>
+        </div>
+      }
+      {isLoading && 
+        <div className="flex sticky top-20 w-full justify-center items-center">
+          <p className="text-3xl">
+            Loading...
+          </p>
+        </div>
+      }
       <div className="h-screen flex items-center justify-center">
         <form className="w-full h-auto max-w-sm m-auto" onSubmit={handleLogin}>
           <div className="md:w-2/3">
